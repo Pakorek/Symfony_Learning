@@ -1,0 +1,7 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+    <section class="container">
+        <h1>{{ slug is empty ? "Aucune série sélectionnée, veuillez choisir une série" : slug }}</h1>
+    </section>
+{% endblock %}
