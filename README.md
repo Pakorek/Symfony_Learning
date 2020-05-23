@@ -7,3 +7,5 @@
 ## 05 . Routing avancé          : branch routing_avance
 
 ## 06 . Doctrine First Entity   : branch doctrine_genesis
+
+## 08 . Doctrine Select         : branch doctrine_08
