@@ -30,17 +30,7 @@ class Episode
     /**
      * @ORM\Column(type="text")
      */
-    private $synopsipublic function getProgram(): ?int
-    {
-        return $this->program;
-    }
-
-    public function setProgram(int $program): self
-    {
-        $this->program = $program;
-
-        return $this;
-    }s;
+    private $synopsis;
 
     /**
      * @ORM\ManyToOne(targetEntity=Season::class, inversedBy="episodes")
