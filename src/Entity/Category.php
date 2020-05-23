@@ -61,7 +61,6 @@ class Category
      * @param Program $program
      * @return Category
      */
-
     public function removeProgram(Program $program): self
     {
         if ($this->programs->contains($program)) {
