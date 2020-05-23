@@ -3,7 +3,6 @@ namespace App\Controller;
 
 use App\Entity\Category;
 use App\Entity\Program;
-use http\Client;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -82,8 +81,6 @@ class WildController extends AbstractController
             throw $this
                 ->createNotFoundException('No category has been sent to find programs');
         }
-        var_dump(self::APIUpdate('tt1520211'));
-        exit();
 
         // En partant du principe que toutes les catégories sont au format Capitalize (BDD)
         // Et pour pallier l'éventuelle erreur type 'science_fiction' au lieu de 'science-fiction'
