@@ -19,6 +19,14 @@ class AdminController extends AbstractController
 {
     const KEY = 'k_Gyn239Fh';
 
+    private $response;
+
+    private $infos;
+
+    private $details;
+
+
+
     /**
      * @Route("/", name="index")
      *
@@ -41,64 +49,70 @@ class AdminController extends AbstractController
             //on nettoie le input -> static function trim/strip/html
             $search = trim($_GET['search_id']);
 
-            $response = self::getAPIId($search);
+            $this->response = self::getAPIId($search);
 
-            return $this->render('admin/getSerie.html.twig', ['series' => $response]);
+            return $this->render('admin/getSerie.html.twig', ['series' => $this->response]);
         }
 
-        $infos = $details = null;
         if (isset($_GET['search_by_id']))
         {
             //on nettoie le input -> static function trim/strip/html
             $id = trim($_GET['search_by_id']);
 
-            $infos = self::getInfosWithAPIId($id);
-            $details = self::getAllDetails($id, sizeof($infos->tvSeriesInfo->seasons));
+            $this->infos = self::getInfosWithAPIId($id);
+            $this->details = self::getAllDetails($id, sizeof($this->infos->tvSeriesInfo->seasons));
 
-            return $this->render('admin/getSerie.html.twig', ['infos' => $infos, 'details' => $details]);
+            return $this->render('admin/getSerie.html.twig', ['infos' => $this->infos, 'details' => $this->details]);
         }
 
         if (isset($_GET['update_bdd']))
         {
+            var_dump($this->infos);
             // on utilise les propriétés de $info et $details
             // avec les methodes de Doctrine
             $entityManager = $this->getDoctrine()->getManager();
-
             $program = new Program();
-            $program->setTitle($infos->id);
+            $program->setTitle($this->infos->title);
             $program->setCategory();
-            $program->setPoster();
-            $program->setSummary();
-            $program->setAPIId();
+            $program->setPoster($this->response->results->image);
+            $program->setSummary($this->infos->plot);
+            $program->setAPIId($this->infos->id);
+            $program->setYear($this->infos->releaseDate);
+            $program->setAwards($this->infos->awards);
+            $program->setNbSeasons(sizeof($this->infos->tvSeriesInfos->seasons));
+            $program->setRuntime($this->infos->runtimeMins);
 
             $entityManager->persist($program);
             $entityManager->flush();
             $entityManager->clear(Program::class);
 
-            // loop
-            $season = new Season();
-            $season->setNumber();
-            $season->setYear();
-            $season->setDescription();
-            $season->setProgram();
+            // Pour chaque saison
+            for ($i=1;$i < sizeof($this->infos->tvSeriesInfos->seasons)+1;$i++) {
+                $season = new Season();
+                $season->setNumber($i);
+                $season->setYear($this->details->year);
+                $season->setDescription('...');
+                $season->setProgram($program);
 
-            $entityManager->persist($season);
+                $entityManager->persist($season);
+                $entityManager->flush();
+                $entityManager->clear(Season::class);
 
-            // loop in loop
-            $episode = new Episode();
-            $episode->setNumber();
-            $episode->setTitle();
-            $episode->setSynopsis();
-            $episode->setSeason();
+                // Pour chaque épisode de la saison
+                foreach ($this->details->episodes as $episod) {
+                    $episode = new Episode();
+                    $episode->setNumber($episod->episodeNumber);
+                    $episode->setTitle($episod->title);
+                    $episode->setSynopsis($episod->plot);
+                    $episode->setPoster($episod->image);
+                    $episode->setReleased($episod->released);
+                    $episode->setSeason($season);
 
-            $entityManager->persist($episode);
-
-
-
-            return $this->render('admin/getSerie.html.twig');
-
+                    $entityManager->persist($episode);
+                    $entityManager->flush();
+                }
+            }
         }
-
         return $this->render('admin/getSerie.html.twig');
     }
 

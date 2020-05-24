@@ -20,7 +20,7 @@ class ProgramType extends AbstractType
             ->add('runtime')
             ->add('awards')
             ->add('nb_seasons')
-            ->add('category')
+            ->add('category', null, ['choice_label' => 'name'])
         ;
     }
 
