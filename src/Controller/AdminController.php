@@ -54,6 +54,16 @@ class AdminController extends AbstractController
             return $this->render('admin/getSerie.html.twig', ['infos' => $infos, 'details' => $details]);
         }
 
+        if (isset($_GET['update_bdd']))
+        {
+            // on utilise les propriétés de $info et $details
+            // avec les methodes de Doctrine
+
+
+            return $this->render('admin/getSerie.html.twig');
+
+        }
+
         return $this->render('admin/getSerie.html.twig');
     }
 

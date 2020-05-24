@@ -45,6 +45,11 @@ class Program
      */
     private $seasons;
 
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
+     */
+    private $API_id;
+
     public function __construct()
     {
         $this->seasons = new ArrayCollection();
@@ -130,6 +135,18 @@ class Program
                 $season->setProgram(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAPIId(): ?string
+    {
+        return $this->API_id;
+    }
+
+    public function setAPIId(?string $API_id): self
+    {
+        $this->API_id = $API_id;
 
         return $this;
     }
