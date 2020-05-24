@@ -1,6 +1,9 @@
 <?php
 namespace App\Controller;
 
+use App\Entity\Episode;
+use App\Entity\Program;
+use App\Entity\Season;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
@@ -43,6 +46,7 @@ class AdminController extends AbstractController
             return $this->render('admin/getSerie.html.twig', ['series' => $response]);
         }
 
+        $infos = $details = null;
         if (isset($_GET['search_by_id']))
         {
             //on nettoie le input -> static function trim/strip/html
@@ -58,6 +62,37 @@ class AdminController extends AbstractController
         {
             // on utilise les propriétés de $info et $details
             // avec les methodes de Doctrine
+            $entityManager = $this->getDoctrine()->getManager();
+
+            $program = new Program();
+            $program->setTitle();
+            $program->setCategory();
+            $program->setPoster();
+            $program->setSummary();
+            $program->setAPIId();
+
+            $entityManager->persist($program);
+            $entityManager->flush();
+            $entityManager->clear(Program::class);
+
+            // loop
+            $season = new Season();
+            $season->setNumber();
+            $season->setYear();
+            $season->setDescription();
+            $season->setProgram();
+
+            $entityManager->persist($season);
+
+            // loop in loop
+            $episode = new Episode();
+            $episode->setNumber();
+            $episode->setTitle();
+            $episode->setSynopsis();
+            $episode->setSeason();
+
+            $entityManager->persist($episode);
+
 
 
             return $this->render('admin/getSerie.html.twig');
@@ -67,6 +102,13 @@ class AdminController extends AbstractController
         return $this->render('admin/getSerie.html.twig');
     }
 
+    /**
+     * get API id from IMDB API
+     * and pick up the official title format
+     *
+     * @param string $search
+     * @return mixed
+     */
     public static function getAPIId(string $search)
     {
         // appliquer une fonction à $search pour les cas avec plusieurs mots
@@ -92,6 +134,12 @@ class AdminController extends AbstractController
         return json_decode($response);
     }
 
+    /**
+     * get details from one program with API_id
+     *
+     * @param string $id
+     * @return mixed
+     */
     public static function getInfosWithAPIId(string $id)
     {
         $curl = curl_init();
@@ -114,6 +162,13 @@ class AdminController extends AbstractController
         return json_decode($response);
     }
 
+    /**
+     * get details from each season
+     *
+     * @param string $id
+     * @param int $seasons
+     * @return array
+     */
     public static function getAllDetails(string $id, int $seasons):array
     {
         $details = [];

@@ -47,7 +47,7 @@
                 <h1>Résultats obtenus avec id = {{ infos.id }}</h1>
                 <br>
                 <form action="" method="get">
-                    <input type="hidden" name="update_bdd">
+                    <input type="hidden" name="update_bdd" value="{{ infos.id }}">
                     <button type="submit">Envoyer en base</button>
                 </form>
                 <br>

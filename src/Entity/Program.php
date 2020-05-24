@@ -50,6 +50,26 @@ class Program
      */
     private $API_id;
 
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
+     */
+    private $year;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $runtime;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $awards;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $nb_seasons;
+
     public function __construct()
     {
         $this->seasons = new ArrayCollection();
@@ -147,6 +167,54 @@ class Program
     public function setAPIId(?string $API_id): self
     {
         $this->API_id = $API_id;
+
+        return $this;
+    }
+
+    public function getYear(): ?string
+    {
+        return $this->year;
+    }
+
+    public function setYear(?string $year): self
+    {
+        $this->year = $year;
+
+        return $this;
+    }
+
+    public function getRuntime(): ?int
+    {
+        return $this->runtime;
+    }
+
+    public function setRuntime(?int $runtime): self
+    {
+        $this->runtime = $runtime;
+
+        return $this;
+    }
+
+    public function getAwards(): ?string
+    {
+        return $this->awards;
+    }
+
+    public function setAwards(?string $awards): self
+    {
+        $this->awards = $awards;
+
+        return $this;
+    }
+
+    public function getNbSeasons(): ?int
+    {
+        return $this->nb_seasons;
+    }
+
+    public function setNbSeasons(?int $nb_seasons): self
+    {
+        $this->nb_seasons = $nb_seasons;
 
         return $this;
     }

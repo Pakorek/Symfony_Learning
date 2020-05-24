@@ -38,6 +38,16 @@ class Episode
      */
     private $season;
 
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
+     */
+    private $released;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $poster;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -87,6 +97,30 @@ class Episode
     public function setSeason(?Season $season): self
     {
         $this->season = $season;
+
+        return $this;
+    }
+
+    public function getReleased(): ?string
+    {
+        return $this->released;
+    }
+
+    public function setReleased(?string $released): self
+    {
+        $this->released = $released;
+
+        return $this;
+    }
+
+    public function getPoster(): ?string
+    {
+        return $this->poster;
+    }
+
+    public function setPoster(?string $poster): self
+    {
+        $this->poster = $poster;
 
         return $this;
     }
