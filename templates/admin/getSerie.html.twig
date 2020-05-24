@@ -62,17 +62,19 @@
                         <ul>
                             <li><h4>Season {{ loop.index }}</h4></li>
                             <li>Episodes : {{ season.episodes|length }}</li>
-                            <ul>
-                                {% for episode in season.episodes %}
-                                    <li>Episode {{ episode.episodeNumber }}</li>
+                            <br>
+                            {% for episode in season.episodes %}
+                                <ul>
+                                    <li><strong>Episode {{ episode.episodeNumber }}</strong></li>
                                     <li><h6>Title : </h6>{{ episode.title }}</li>
                                     <li><h6>Released : </h6>{{ episode.released }}</li>
                                     <li><h6>Synopsis : </h6>{{ episode.plot }}</li>
-                                    <li>Image : {{ episode.image }}</li>
-                                {% endfor %}
-                            </ul>
+                                    <li><h6>Image : </h6>{{ episode.image }}</li>
+                                </ul>
+                                <br>
+                            {% endfor %}
                         </ul>
-
+                        <br>
                     {% endfor %}
                 {% endif %}
             </article>

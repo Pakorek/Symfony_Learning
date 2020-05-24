@@ -14,6 +14,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class AdminController extends AbstractController
 {
+    const KEY = 'k_Gyn239Fh';
+
     /**
      * @Route("/", name="index")
      *
@@ -36,7 +38,6 @@ class AdminController extends AbstractController
             //on nettoie le input -> static function trim/strip/html
             $search = trim($_GET['search_id']);
 
-            // On récupère le id de l'API
             $response = self::getAPIId($search);
 
             return $this->render('admin/getSerie.html.twig', ['series' => $response]);
@@ -48,8 +49,6 @@ class AdminController extends AbstractController
             $id = trim($_GET['search_by_id']);
 
             $infos = self::getInfosWithAPIId($id);
-//            var_dump($infos);
-//            exit();
             $details = self::getAllDetails($id, sizeof($infos->tvSeriesInfo->seasons));
 
             return $this->render('admin/getSerie.html.twig', ['infos' => $infos, 'details' => $details]);
@@ -60,10 +59,13 @@ class AdminController extends AbstractController
 
     public static function getAPIId(string $search)
     {
+        // appliquer une fonction à $search pour les cas avec plusieurs mots
+        // ex: Breaking Bad         (un truc du genre replace(' ','%20',$search)
+
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://imdb-api.com/en/API/SearchSeries/k_k6A30v26/$search",
+            CURLOPT_URL => "https://imdb-api.com/en/API/SearchSeries/". self::KEY . "/$search",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -85,7 +87,7 @@ class AdminController extends AbstractController
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://imdb-api.com/en/API/Title/k_k6A30v26/$id",
+            CURLOPT_URL => "https://imdb-api.com/en/API/Title/". self::KEY ."/$id",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -109,7 +111,7 @@ class AdminController extends AbstractController
 
         for ($i=1;$i<$seasons+1;$i++) {
             curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://imdb-api.com/en/API/SeasonEpisodes/k_k6A30v26/$id/$i",
+                CURLOPT_URL => "https://imdb-api.com/en/API/SeasonEpisodes/". self::KEY ."/$id/$i",
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => "",
                 CURLOPT_MAXREDIRS => 10,
@@ -123,7 +125,6 @@ class AdminController extends AbstractController
 
             $details["season_$i"] = json_decode($response);
         }
-
 
         curl_close($curl);
 
