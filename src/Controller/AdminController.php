@@ -65,7 +65,7 @@ class AdminController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
 
             $program = new Program();
-            $program->setTitle();
+            $program->setTitle($infos->id);
             $program->setCategory();
             $program->setPoster();
             $program->setSummary();
