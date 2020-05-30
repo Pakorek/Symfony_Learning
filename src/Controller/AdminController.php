@@ -47,9 +47,7 @@ class AdminController extends AbstractController
         {
             //on nettoie le input -> static function trim/strip/html
             $search = trim($_GET['search_id']);
-
             $response = self::getAPIId($search);
-
             return $this->render('admin/getSerie.html.twig', ['series' => $response]);
         }
 
@@ -123,49 +121,49 @@ class AdminController extends AbstractController
         if (isset($_GET['update_bdd']))
         {
             // Get Repos API
+            $api_program = $this->getDoctrine()->getRepository(ApiProgram::class)->findAll();
+            $api_season = $this->getDoctrine()->getRepository(ApiSeason::class)->findAll();
+            $api_episode = $this->getDoctrine()->getRepository(ApiEpisode::class)->findAll();
+//            dump($api_episode);
+//            die();
 
             // MaJ BDD
 
-            $entityManager = $this->getDoctrine()->getManager();
+            $em = $this->getDoctrine()->getManager();
             $program = new Program();
-            $program->setTitle();
-            $program->setCategory();
-            $program->setPoster();
-            $program->setSummary();
-            $program->setAPIId();
-            $program->setYear();
-            $program->setAwards();
-            $program->setNbSeasons();
-            $program->setRuntime();
-
-            $entityManager->persist($program);
-            $entityManager->clear(Program::class);
+            $program->setTitle($api_program[0]->getTitle());
+            $program->setApiId($api_program[0]->getApiId());
+            $program->setYear($api_program[0]->getYear());
+            $program->setSummary($api_program[0]->getPlot());
+            $program->setPoster($api_program[0]->getPoster());
+            $program->setRuntime($api_program[0]->getRuntime());
+            $program->setAwards($api_program[0]->getAwards());
+            $program->setNbSeasons($api_program[0]->getNbSeasons());
+            $program->setEndYear($api_program[0]->getEndYear());
+            $em->persist($program);
 
             // Pour chaque saison
-            for ($i=1;$i < sizeof($this->infos->tvSeriesInfos->seasons)+1;$i++) {
+            foreach ($api_season as $ap_season) {
                 $season = new Season();
-                $season->setNumber($i);
-                $season->setYear();
-                $season->setDescription();
+                $season->setNumber($ap_season->getNumber());
+                $season->setYear($ap_season->getYear());
+                $season->setDescription('...');
                 $season->setProgram($program);
-
-                $entityManager->persist($season);
-                $entityManager->clear(Season::class);
+                $em->persist($season);
 
                 // Pour chaque épisode de la saison
-                foreach ($this->details->episodes as $episod) {
+                foreach ($api_episode as $episod) {
                     $episode = new Episode();
-                    $episode->setNumber();
-                    $episode->setTitle();
-                    $episode->setSynopsis();
-                    $episode->setPoster();
-                    $episode->setReleased();
+                    $episode->setNumber($episod->getNumber());
+                    $episode->setTitle($episod->getTitle());
+                    $episode->setSynopsis($episod->getPlot());
+                    $episode->setPoster($episod->getImage());
+                    $episode->setReleased($episod->getReleased());
                     $episode->setSeason($season);
-
-                    $entityManager->persist($episode);
-                    $entityManager->clear(Episode::class);
+                    $em->persist($episode);
                 }
             }
+            $em->flush();
 
             // Clear API BDD
 

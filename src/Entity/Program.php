@@ -80,6 +80,11 @@ class Program
      */
     private $categories;
 
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $endYear;
+
     public function __construct()
     {
         $this->seasons = new ArrayCollection();
@@ -315,6 +320,18 @@ class Program
             $this->categories->removeElement($category);
             $category->removeProgram($this);
         }
+
+        return $this;
+    }
+
+    public function getEndYear(): ?int
+    {
+        return $this->endYear;
+    }
+
+    public function setEndYear(?int $endYear): self
+    {
+        $this->endYear = $endYear;
 
         return $this;
     }
