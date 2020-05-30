@@ -37,6 +37,36 @@ class AdminController extends AbstractController
     }
 
     /**
+     * @Route("/dropApiDB", name="drop")
+     *
+     */
+    public function dropApiDB()
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        // IDEM pour Actor, Creator, Category
+
+        $api_program = $this->getDoctrine()->getRepository(ApiProgram::class)->findAll();
+        $api_season = $this->getDoctrine()->getRepository(ApiSeason::class)->findAll();
+        $api_episode = $this->getDoctrine()->getRepository(ApiEpisode::class)->findAll();
+
+
+        $em->remove($api_program[0]);
+
+        foreach ($api_season as $ap_season) {
+            $em->remove($ap_season);
+        }
+
+        foreach ($api_episode as $ap_episode) {
+            $em->remove($ap_episode);
+        }
+        $em->flush();
+
+        return $this->redirectToRoute('admin_getSerie');
+
+    }
+
+    /**
      * @Route("/getSerie", name="getSerie")
      *
      * @return Response
@@ -124,10 +154,9 @@ class AdminController extends AbstractController
             $api_program = $this->getDoctrine()->getRepository(ApiProgram::class)->findAll();
             $api_season = $this->getDoctrine()->getRepository(ApiSeason::class)->findAll();
             $api_episode = $this->getDoctrine()->getRepository(ApiEpisode::class)->findAll();
-//            dump($api_episode);
-//            die();
 
             // MaJ BDD
+            // if !contains
 
             $em = $this->getDoctrine()->getManager();
             $program = new Program();
@@ -142,7 +171,6 @@ class AdminController extends AbstractController
             $program->setEndYear($api_program[0]->getEndYear());
             $em->persist($program);
 
-            // Pour chaque saison
             foreach ($api_season as $ap_season) {
                 $season = new Season();
                 $season->setNumber($ap_season->getNumber());
@@ -151,7 +179,6 @@ class AdminController extends AbstractController
                 $season->setProgram($program);
                 $em->persist($season);
 
-                // Pour chaque épisode de la saison
                 foreach ($api_episode as $episod) {
                     $episode = new Episode();
                     $episode->setNumber($episod->getNumber());
@@ -166,10 +193,7 @@ class AdminController extends AbstractController
             $em->flush();
 
             // Clear API BDD
-
-
-
-
+            $this->dropApiDB();
         }
         return $this->render('admin/getSerie.html.twig');
     }
