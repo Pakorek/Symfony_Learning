@@ -34,11 +34,6 @@ class Program
      */
     private $poster;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="programs")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $category;
 
     /**
      * @ORM\OneToMany(targetEntity=Season::class, mappedBy="program")
@@ -70,9 +65,27 @@ class Program
      */
     private $nb_seasons;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Actor::class, mappedBy="programs")
+     */
+    private $actors;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Creator::class, mappedBy="program")
+     */
+    private $creators;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Category::class, mappedBy="programs")
+     */
+    private $categories;
+
     public function __construct()
     {
         $this->seasons = new ArrayCollection();
+        $this->actors = new ArrayCollection();
+        $this->creators = new ArrayCollection();
+        $this->categories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -215,6 +228,93 @@ class Program
     public function setNbSeasons(?int $nb_seasons): self
     {
         $this->nb_seasons = $nb_seasons;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Actor[]
+     */
+    public function getActors(): Collection
+    {
+        return $this->actors;
+    }
+
+    public function addActor(Actor $actor): self
+    {
+        if (!$this->actors->contains($actor)) {
+            $this->actors[] = $actor;
+            $actor->addProgram($this);
+        }
+
+        return $this;
+    }
+
+    public function removeActor(Actor $actor): self
+    {
+        if ($this->actors->contains($actor)) {
+            $this->actors->removeElement($actor);
+            $actor->removeProgram($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Creator[]
+     */
+    public function getCreators(): Collection
+    {
+        return $this->creators;
+    }
+
+    public function addCreator(Creator $creator): self
+    {
+        if (!$this->creators->contains($creator)) {
+            $this->creators[] = $creator;
+            $creator->setProgram($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCreator(Creator $creator): self
+    {
+        if ($this->creators->contains($creator)) {
+            $this->creators->removeElement($creator);
+            // set the owning side to null (unless already changed)
+            if ($creator->getProgram() === $this) {
+                $creator->setProgram(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Category[]
+     */
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(Category $category): self
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories[] = $category;
+            $category->addProgram($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): self
+    {
+        if ($this->categories->contains($category)) {
+            $this->categories->removeElement($category);
+            $category->removeProgram($this);
+        }
 
         return $this;
     }

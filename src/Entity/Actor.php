@@ -2,15 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\CategoryRepository;
+use App\Repository\ActorRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=CategoryRepository::class)
+ * @ORM\Entity(repositoryClass=ActorRepository::class)
  */
-class Category
+class Actor
 {
     /**
      * @ORM\Id()
@@ -25,7 +25,7 @@ class Category
     private $name;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Program::class, inversedBy="categories")
+     * @ORM\ManyToMany(targetEntity=Program::class, inversedBy="actors")
      */
     private $programs;
 

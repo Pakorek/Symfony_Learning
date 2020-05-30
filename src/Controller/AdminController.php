@@ -19,11 +19,26 @@ class AdminController extends AbstractController
 {
     const KEY = 'k_Gyn239Fh';
 
-    private $response;
+    protected $response;
 
-    private $infos;
+    protected $infos;
 
-    private $details;
+    protected $details;
+
+    public function setResponse($response)
+    {
+        return $this->response = $response;
+    }
+
+    public function setInfos($infos)
+    {
+        return $this->infos = $infos;
+    }
+
+    public function setDetails($details)
+    {
+        return $this->details = $details;
+    }
 
 
 
@@ -44,35 +59,37 @@ class AdminController extends AbstractController
      */
     public function getSerie():Response
     {
+        $admin = new AdminController();
+
         if (isset($_GET['search_id']))
         {
             //on nettoie le input -> static function trim/strip/html
             $search = trim($_GET['search_id']);
 
-            $this->response = self::getAPIId($search);
+            $admin->response = $admin->setResponse(self::getAPIId($search));
 
-            return $this->render('admin/getSerie.html.twig', ['series' => $this->response]);
+            return $this->render('admin/getSerie.html.twig', ['series' => $admin->response]);
         }
 
         if (isset($_GET['search_by_id']))
         {
             //on nettoie le input -> static function trim/strip/html
             $id = trim($_GET['search_by_id']);
+            $admin->infos = $admin->setInfos(self::getInfosWithAPIId($id));
+            $admin->details = $admin->setDetails(self::getAllDetails($id, sizeof($admin->infos->tvSeriesInfo->seasons)));
 
-            $this->infos = self::getInfosWithAPIId($id);
-            $this->details = self::getAllDetails($id, sizeof($this->infos->tvSeriesInfo->seasons));
-
-            return $this->render('admin/getSerie.html.twig', ['infos' => $this->infos, 'details' => $this->details]);
+            return $this->render('admin/getSerie.html.twig', ['infos' => $admin->infos, 'details' => $admin->details]);
         }
 
         if (isset($_GET['update_bdd']))
         {
-            var_dump($this->infos);
+            dump($admin);
             // on utilise les propriétés de $info et $details
             // avec les methodes de Doctrine
             $entityManager = $this->getDoctrine()->getManager();
             $program = new Program();
             $program->setTitle($this->infos->title);
+            // genres ? Many to Many ?
             $program->setCategory();
             $program->setPoster($this->response->results->image);
             $program->setSummary($this->infos->plot);
