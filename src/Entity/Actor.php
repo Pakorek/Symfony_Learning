@@ -29,6 +29,16 @@ class Actor
      */
     private $programs;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $birth_date;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $image;
+
     public function __construct()
     {
         $this->programs = new ArrayCollection();
@@ -73,6 +83,30 @@ class Actor
         if ($this->programs->contains($program)) {
             $this->programs->removeElement($program);
         }
+
+        return $this;
+    }
+
+    public function getBirthDate(): ?\DateTimeInterface
+    {
+        return $this->birth_date;
+    }
+
+    public function setBirthDate(?\DateTimeInterface $birth_date): self
+    {
+        $this->birth_date = $birth_date;
+
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): self
+    {
+        $this->image = $image;
 
         return $this;
     }

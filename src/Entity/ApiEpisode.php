@@ -23,7 +23,7 @@ class ApiEpisode
     private $title;
 
     /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="string", length=255)
      */
     private $released;
 
@@ -65,12 +65,12 @@ class ApiEpisode
         return $this;
     }
 
-    public function getReleased(): ?\DateTimeInterface
+    public function getReleased(): ?string
     {
         return $this->released;
     }
 
-    public function setReleased(\DateTimeInterface $released): self
+    public function setReleased(string $released): self
     {
         $this->released = $released;
 

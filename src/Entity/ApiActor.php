@@ -27,10 +27,10 @@ class ApiActor
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $lastname;
+    private $name;
 
     /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $birth_date;
 
@@ -38,6 +38,16 @@ class ApiActor
      * @ORM\ManyToMany(targetEntity=ApiProgram::class, inversedBy="apiActors")
      */
     private $programs;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $asCharacter;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $image;
 
     public function __construct()
     {
@@ -61,14 +71,14 @@ class ApiActor
         return $this;
     }
 
-    public function getLastname(): ?string
+    public function getName(): ?string
     {
-        return $this->lastname;
+        return $this->name;
     }
 
-    public function setLastname(string $lastname): self
+    public function setName(string $name): self
     {
-        $this->lastname = $lastname;
+        $this->name = $name;
 
         return $this;
     }
@@ -107,6 +117,30 @@ class ApiActor
         if ($this->programs->contains($program)) {
             $this->programs->removeElement($program);
         }
+
+        return $this;
+    }
+
+    public function getAsCharacter(): ?string
+    {
+        return $this->asCharacter;
+    }
+
+    public function setAsCharacter(string $asCharacter): self
+    {
+        $this->asCharacter = $asCharacter;
+
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): self
+    {
+        $this->image = $image;
 
         return $this;
     }
