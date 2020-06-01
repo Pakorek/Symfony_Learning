@@ -65,7 +65,7 @@ class AdminController extends AbstractController
             if ($repo == 'api_program') {
                 $em->remove($repos['api_program'][0]);
             } else {
-                foreach ($repo as $object) {
+                foreach ($obj as $object) {
                     $em->remove($object);
                 }
             }
@@ -111,7 +111,7 @@ class AdminController extends AbstractController
             $program->setRuntime(intval($infos->runtimeMins));
             $program->setAwards($infos->awards);
             $program->setNbSeasons(sizeof($infos->tvSeriesInfo->seasons));
-            $program->setEndYear($infos->tvSeriesInfo->yearEnd);
+            $program->setEndYear(intval($infos->tvSeriesInfo->yearEnd));
             $em->persist($program);
 
             foreach ($infos->actorList as $star) {
@@ -195,7 +195,7 @@ class AdminController extends AbstractController
             foreach ($repos['api_creator'] as $_creator) {
                 $creatorExist = $this->getDoctrine()
                     ->getRepository(Creator::class)
-                    ->findOneBy(['full_name' => $_creator->getFullName()]);
+                    ->findOneBy(['fullName' => $_creator->getFullName()]);
 
                 if (!$creatorExist) {
                     $creator = new Creator();
@@ -225,18 +225,21 @@ class AdminController extends AbstractController
                 $season->setYear($ap_season->getYear());
                 $season->setDescription('...');
                 $season->setProgram($program);
-                $em->persist($season);
 
                 foreach ($repos['api_episode'] as $episod) {
-                    $episode = new Episode();
-                    $episode->setNumber($episod->getNumber());
-                    $episode->setTitle($episod->getTitle());
-                    $episode->setSynopsis($episod->getPlot());
-                    $episode->setPoster($episod->getImage());
-                    $episode->setReleased($episod->getReleased());
-                    $episode->setSeason($season);
-                    $em->persist($episode);
+                    if ($episod->getSeason()->getNumber() == $ap_season->getNumber()) {
+                        $episode = new Episode();
+                        $episode->setNumber($episod->getNumber());
+                        $episode->setTitle($episod->getTitle());
+                        $episode->setSynopsis($episod->getPlot());
+                        $episode->setPoster($episod->getImage());
+                        $episode->setReleased($episod->getReleased());
+                        $episode->setSeason($season);
+                        $season->addEpisode($episode);
+                        $em->persist($episode);
+                    }
                 }
+                $em->persist($season);
             }
             $em->flush();
 

@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use App\Entity\Category;
 use App\Entity\Program;
+use App\Entity\Season;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -104,27 +105,57 @@ class WildController extends AbstractController
     }
 
     /**
-     * @param string $id
-     * $id like 'tt...' from API/Search/...
+     * @Route("/program/{programName<^[a-zA-Z0-9-, &]+$>?null}", name="show_program")
+     *
+     * @param string $programName
+     * @return Response
      */
-    public static function APIUpdate(string $id)
+    public function showByProgram(string $programName):Response
     {
-        $curl = curl_init();
+        if (!$programName) {
+            throw $this
+                ->createNotFoundException('No program has been sent');
+        }
 
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://imdb-api.com/en/API/Title/k_k6A30v26/$id",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "GET",
-        ));
+        $programName = preg_replace(
+            '/-/',
+            ' ', ucwords(trim(strip_tags($programName)), "-")
+        );
 
-        $response = curl_exec($curl);
-        curl_close($curl);
+        $program = $this->getDoctrine()
+            ->getRepository(Program::class)
+            ->findOneBy(['title' => $programName]);
 
-        return json_decode($response);
+        $seasons = $program->getSeasons()->getValues();
+
+        return $this->render('wild/program.html.twig', [
+            'program' => $program,
+            'seasons' => $seasons
+        ]);
+    }
+
+    /**
+     * @Route("/season/{id<^[0-9]+$>?null}", name="show_season")
+     *
+     * @param int $id
+     * @return Response
+     */
+    public function showBySeason(int $id):Response
+    {
+        if (!$id) {
+            throw $this
+                ->createNotFoundException('No season\'s id has been sent');
+        }
+
+        $season = $this->getDoctrine()->getRepository(Season::class)->findOneBy(['id' => $id]);
+
+        $program = $season->getProgram()->getTitle();
+        $episodes = $season->getEpisodes()->getValues();
+
+        return $this->render('wild/season.html.twig', [
+            'program' => $program,
+            'season' => $season,
+            'episodes' => $episodes
+        ]);
     }
 }

@@ -3,17 +3,20 @@
 
 {% block body %}
     <section class="container" id="wild_index">
-        <h1>Toutes les séries de la table program : </h1>
+        <h1>All Series : </h1>
         {% for program in programs %}
             <div>
-                <h2>{{ loop.index }} / {{ program.title }} - Catégorie : {{ program.category.name }}</h2>
+                <h2>
+                    {{ loop.index }} / {{ program.title }}
+                    <a href="{{ path('wild_show_program', {'programName': program.title }) }}">+</a>
+                </h2>
                 <p>{{ program.summary }}</p>
             </div>
         {% else %}
-            Aucune série trouvée.
+            Where are they ???
         {% endfor %}
         <a href="{{ path('app_index') }}">
-            Retour à l'accueil
+            Home
         </a>
     </section>
 {% endblock %}

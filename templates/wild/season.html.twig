@@ -1,0 +1,29 @@
+{% extends "base.html.twig" %}
+
+
+{% block body %}
+    <section class="container" id="wild_show_season">
+        <h1>{{ program }} - Season {{ season.number}} </h1>
+        <blockquote>
+            {{ season.description }}
+        </blockquote>
+        <h3>Episodes</h3>
+        <ul>
+            {% for episode in episodes %}
+                <li>Episode {{ episode.number }} : {{ episode.title }}</li>
+            {% endfor %}
+        </ul>
+        <a href="{{ path('wild_show_program', {'programName': program }) }}">
+            Back to Program
+        </a>
+        <br>
+        <a href="{{ path('wild_index') }}">
+            All Programs
+        </a>
+        <br>
+        <a href="{{ path('app_index') }}">
+            Home
+        </a>
+    </section>
+
+{% endblock %}
