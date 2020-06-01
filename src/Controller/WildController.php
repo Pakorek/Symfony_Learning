@@ -32,7 +32,6 @@ class WildController extends AbstractController
             throw $this->createNotFoundException('No program found in program\'s table');
         }
 
-
         return $this->render('wild/index.html.twig', ['programs' => $programs]);
     }
 
@@ -124,10 +123,8 @@ class WildController extends AbstractController
         ));
 
         $response = curl_exec($curl);
-
         curl_close($curl);
 
         return json_decode($response);
-
     }
 }

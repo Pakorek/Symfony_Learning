@@ -1,12 +1,15 @@
 <?php
 namespace App\Controller;
 
+use App\Entity\Actor;
 use App\Entity\ApiActor;
 use App\Entity\ApiCategory;
 use App\Entity\ApiCreator;
 use App\Entity\ApiEpisode;
 use App\Entity\ApiProgram;
 use App\Entity\ApiSeason;
+use App\Entity\Category;
+use App\Entity\Creator;
 use App\Entity\Episode;
 use App\Entity\Program;
 use App\Entity\Season;
@@ -36,6 +39,18 @@ class AdminController extends AbstractController
         return $this->render('admin/index.html.twig');
     }
 
+    public function getAllApiRepo():array
+    {
+        return $repos = [
+            'api_program' => $this->getDoctrine()->getRepository(ApiProgram::class)->findAll(),
+            'api_season' => $this->getDoctrine()->getRepository(ApiSeason::class)->findAll(),
+            'api_episode' => $this->getDoctrine()->getRepository(ApiEpisode::class)->findAll(),
+            'api_actor' => $this->getDoctrine()->getRepository(ApiActor::class)->findAll(),
+            'api_creator' => $this->getDoctrine()->getRepository(ApiCreator::class)->findAll(),
+            'api_category' => $this->getDoctrine()->getRepository(ApiCategory::class)->findAll()
+        ];
+    }
+
     /**
      * @Route("/dropApiDB", name="drop")
      *
@@ -44,26 +59,21 @@ class AdminController extends AbstractController
     {
         $em = $this->getDoctrine()->getManager();
 
-        // IDEM pour Actor, Creator, Category
+        $repos = $this->getAllApiRepo();
 
-        $api_program = $this->getDoctrine()->getRepository(ApiProgram::class)->findAll();
-        $api_season = $this->getDoctrine()->getRepository(ApiSeason::class)->findAll();
-        $api_episode = $this->getDoctrine()->getRepository(ApiEpisode::class)->findAll();
-
-
-        $em->remove($api_program[0]);
-
-        foreach ($api_season as $ap_season) {
-            $em->remove($ap_season);
+        foreach ($repos as $repo => $obj) {
+            if ($repo == 'api_program') {
+                $em->remove($repos['api_program'][0]);
+            } else {
+                foreach ($repo as $object) {
+                    $em->remove($object);
+                }
+            }
         }
 
-        foreach ($api_episode as $ap_episode) {
-            $em->remove($ap_episode);
-        }
         $em->flush();
 
         return $this->redirectToRoute('admin_getSerie');
-
     }
 
     /**
@@ -150,28 +160,66 @@ class AdminController extends AbstractController
 
         if (isset($_GET['update_bdd']))
         {
-            // Get Repos API
-            $api_program = $this->getDoctrine()->getRepository(ApiProgram::class)->findAll();
-            $api_season = $this->getDoctrine()->getRepository(ApiSeason::class)->findAll();
-            $api_episode = $this->getDoctrine()->getRepository(ApiEpisode::class)->findAll();
+            $repos = $this->getAllApiRepo();
 
             // MaJ BDD
             // if !contains
 
             $em = $this->getDoctrine()->getManager();
+
             $program = new Program();
-            $program->setTitle($api_program[0]->getTitle());
-            $program->setApiId($api_program[0]->getApiId());
-            $program->setYear($api_program[0]->getYear());
-            $program->setSummary($api_program[0]->getPlot());
-            $program->setPoster($api_program[0]->getPoster());
-            $program->setRuntime($api_program[0]->getRuntime());
-            $program->setAwards($api_program[0]->getAwards());
-            $program->setNbSeasons($api_program[0]->getNbSeasons());
-            $program->setEndYear($api_program[0]->getEndYear());
+            $program->setTitle($repos['api_program'][0]->getTitle());
+            $program->setApiId($repos['api_program'][0]->getApiId());
+            $program->setYear($repos['api_program'][0]->getYear());
+            $program->setSummary($repos['api_program'][0]->getPlot());
+            $program->setPoster($repos['api_program'][0]->getPoster());
+            $program->setRuntime($repos['api_program'][0]->getRuntime());
+            $program->setAwards($repos['api_program'][0]->getAwards());
+            $program->setNbSeasons($repos['api_program'][0]->getNbSeasons());
+            $program->setEndYear($repos['api_program'][0]->getEndYear());
+
+            foreach ($repos['api_actor'] as $_actor) {
+                $actorExist = $this->getDoctrine()
+                    ->getRepository(Actor::class)
+                    ->findOneBy(['name' => $_actor->getName()]);
+
+                if (!$actorExist) {
+                    $actor = new Actor();
+                    $actor->setName($_actor->getName());
+                    $actor->setImage($_actor->getImage());
+                    $em->persist($actor);
+                    $program->addActor($actor);
+                }
+            }
+
+            foreach ($repos['api_creator'] as $_creator) {
+                $creatorExist = $this->getDoctrine()
+                    ->getRepository(Creator::class)
+                    ->findOneBy(['full_name' => $_creator->getFullName()]);
+
+                if (!$creatorExist) {
+                    $creator = new Creator();
+                    $creator->setFullName($_creator->getFullName());
+                    $em->persist($creator);
+                    $program->addCreator($creator);
+                }
+            }
+
+            foreach ($repos['api_category'] as $_cat) {
+                $catExist = $this->getDoctrine()
+                    ->getRepository(Category::class)
+                    ->findOneBy(['name' => $_cat->getName()]);
+
+                if (!$catExist) {
+                    $category = new Category();
+                    $category->setName($_cat->getName());
+                    $em->persist($category);
+                    $program->addCategory($category);
+                }
+            }
             $em->persist($program);
 
-            foreach ($api_season as $ap_season) {
+            foreach ($repos['api_season'] as $ap_season) {
                 $season = new Season();
                 $season->setNumber($ap_season->getNumber());
                 $season->setYear($ap_season->getYear());
@@ -179,7 +227,7 @@ class AdminController extends AbstractController
                 $season->setProgram($program);
                 $em->persist($season);
 
-                foreach ($api_episode as $episod) {
+                foreach ($repos['api_episode'] as $episod) {
                     $episode = new Episode();
                     $episode->setNumber($episod->getNumber());
                     $episode->setTitle($episod->getTitle());
