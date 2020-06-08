@@ -3,6 +3,7 @@
 {% block title %}Episode{% endblock %}
 
 {% block body %}
+    {{ dump(episode) }}
     <h1>Episode</h1>
 
     <table class="table">
@@ -10,6 +11,14 @@
             <tr>
                 <th>Id</th>
                 <td>{{ episode.id }}</td>
+            </tr>
+            <tr>
+                <th>Program</th>
+                <td>{{ episode.season.program.title }} <a href="{{ path('program_show', {'id': episode.season.program.id }) }}">+</a></td>
+            </tr>
+            <tr>
+                <th>Season</th>
+                <td>{{ episode.season.number }} <a href="{{ path('wild_show_season', { 'id': episode.season.id }) }}">+</a></td>
             </tr>
             <tr>
                 <th>Title</th>

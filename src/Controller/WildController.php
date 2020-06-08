@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Entity\Category;
+use App\Entity\Episode;
 use App\Entity\Program;
 use App\Entity\Season;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -95,12 +96,11 @@ class WildController extends AbstractController
             ->getRepository(Category::class)
             ->findOneBy(['name' => $categoryName]);
 
-        $programs = $this->getDoctrine()
-            ->getRepository(Program::class)
-            ->findBy(['category' => $category->getId()], ['id' => 'DESC'], 3);
+        $programs = $category->getPrograms();
 
         return $this->render('wild/category.html.twig', [
             'programs' => $programs,
+            'category' => $categoryName
         ]);
     }
 
@@ -156,6 +156,29 @@ class WildController extends AbstractController
             'program' => $program,
             'season' => $season,
             'episodes' => $episodes
+        ]);
+    }
+
+    /**
+     * @Route("/episode/{episode}", name="show_episode")
+     *
+     * @param Episode $episode
+     * @return Response
+     */
+    public function showEpisode(Episode $episode): Response
+    {
+        if (!$episode) {
+            throw $this
+                ->createNotFoundException('No episode\'s id has been sent');
+        }
+
+        $season = $episode->getSeason();
+        $program = $season->getProgram();
+
+        return $this->render('wild/episode.html.twig', [
+            'episode' => $episode,
+            'season' => $season,
+            'program' => $program
         ]);
     }
 }
