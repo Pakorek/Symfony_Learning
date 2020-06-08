@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use App\Entity\Category;
 use App\Entity\Program;
+use App\Entity\Season;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -31,7 +32,6 @@ class WildController extends AbstractController
         if (!$programs) {
             throw $this->createNotFoundException('No program found in program\'s table');
         }
-
 
         return $this->render('wild/index.html.twig', ['programs' => $programs]);
     }
@@ -83,7 +83,7 @@ class WildController extends AbstractController
         }
 
         // En partant du principe que toutes les catégories sont au format Capitalize (BDD)
-        // Et pour pallier l'éventuel erreur type 'science_fiction' au lieu de 'science-fiction'
+        // Et pour pallier l'éventuelle erreur type 'science_fiction' au lieu de 'science-fiction'
         $categoryName = preg_replace(
             '/_/',
             '-', ucwords(trim(strip_tags($categoryName)), "_")
@@ -101,6 +101,61 @@ class WildController extends AbstractController
 
         return $this->render('wild/category.html.twig', [
             'programs' => $programs,
+        ]);
+    }
+
+    /**
+     * @Route("/program/{programName<^[a-zA-Z0-9-, &.]+$>?null}", name="show_program")
+     *
+     * @param string $programName
+     * @return Response
+     */
+    public function showByProgram(string $programName):Response
+    {
+        if (!$programName) {
+            throw $this
+                ->createNotFoundException('No program has been sent');
+        }
+
+        $programName = preg_replace(
+            '/-/',
+            ' ', ucwords(trim(strip_tags($programName)), "-")
+        );
+
+        $program = $this->getDoctrine()
+            ->getRepository(Program::class)
+            ->findOneBy(['title' => $programName]);
+
+        $seasons = $program->getSeasons()->getValues();
+
+        return $this->render('wild/program.html.twig', [
+            'program' => $program,
+            'seasons' => $seasons
+        ]);
+    }
+
+    /**
+     * @Route("/season/{id<^[0-9]+$>?null}", name="show_season")
+     *
+     * @param int $id
+     * @return Response
+     */
+    public function showBySeason(int $id):Response
+    {
+        if (!$id) {
+            throw $this
+                ->createNotFoundException('No season\'s id has been sent');
+        }
+
+        $season = $this->getDoctrine()->getRepository(Season::class)->findOneBy(['id' => $id]);
+
+        $program = $season->getProgram()->getTitle();
+        $episodes = $season->getEpisodes()->getValues();
+
+        return $this->render('wild/season.html.twig', [
+            'program' => $program,
+            'season' => $season,
+            'episodes' => $episodes
         ]);
     }
 }

@@ -2,17 +2,11 @@
 
 {% block body %}
     <section class="container" id="root_index">
-        <h1>Bienvenue sur Wild Series</h1>
-        <a href="{{ path('wild_show', { 'slug': "walking-dead" }) }}">
-            Testing show() method from WildController with a real program s slug.
-        </a>
+        <h1>Hey you ! Welcome on Wild Series</h1>
         <br>
         <a href="{{ path('wild_index') }}">
-            Testing index() method from WildController to view all programs.
+            View all programs
         </a>
         <br>
-        <a href="{{ path('wild_show_category', { 'categoryName': "Horreur" }) }}">
-            Testing showByCategory() method from WildController with a real category
-        </a>
     </section>
 {% endblock %}

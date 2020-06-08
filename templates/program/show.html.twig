@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Program{% endblock %}
+
+{% block body %}
+    <h1>Program</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ program.id }}</td>
+            </tr>
+            <tr>
+                <th>Title</th>
+                <td>{{ program.title }}</td>
+            </tr>
+            <tr>
+                <th>Summary</th>
+                <td>{{ program.summary }}</td>
+            </tr>
+            <tr>
+                <th>Poster</th>
+                <td>{{ program.poster }}</td>
+            </tr>
+            <tr>
+                <th>API_id</th>
+                <td>{{ program.APIId }}</td>
+            </tr>
+            <tr>
+                <th>Year</th>
+                <td>{{ program.year }}</td>
+            </tr>
+            <tr>
+                <th>Runtime</th>
+                <td>{{ program.runtime }}</td>
+            </tr>
+            <tr>
+                <th>Awards</th>
+                <td>{{ program.awards }}</td>
+            </tr>
+            <tr>
+                <th>Nb_seasons</th>
+                <td>{{ program.nbSeasons }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <strong>Actors :</strong>
+    <ul>
+        {% for actor in program.actors %}
+            <li>{{ actor.name }} <a href="{{ path('actor_show', {'id': actor.id}) }}">+</a></li>
+        {% else %}
+            <li>No actor for this program (yes, for real)</li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ path('program_index') }}">back to list</a>
+
+    <a href="{{ path('program_edit', {'id': program.id}) }}">edit</a>
+
+    {{ include('program/_delete_form.html.twig') }}
+{% endblock %}
