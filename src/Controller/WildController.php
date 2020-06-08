@@ -105,7 +105,7 @@ class WildController extends AbstractController
     }
 
     /**
-     * @Route("/program/{programName<^[a-zA-Z0-9-, &]+$>?null}", name="show_program")
+     * @Route("/program/{programName<^[a-zA-Z0-9-, &.]+$>?null}", name="show_program")
      *
      * @param string $programName
      * @return Response
