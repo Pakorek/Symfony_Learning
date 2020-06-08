@@ -9,3 +9,5 @@
 ## 06 . Doctrine First Entity   : branch doctrine_genesis
 
 ## 08 . Doctrine Select         : branch doctrine_08
+
+## 09 . Doctrine Bidirection    : branch doctrine_09 || https://www.loom.com/share/f2712f6c2a7e4296b3631760c3060dc9
