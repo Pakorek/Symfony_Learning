@@ -2,8 +2,11 @@
 namespace App\Controller;
 
 use App\Entity\Category;
+use App\Entity\Comment;
+use App\Entity\Episode;
 use App\Entity\Program;
 use App\Entity\Season;
+use App\Form\CommentType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -105,7 +108,7 @@ class WildController extends AbstractController
     }
 
     /**
-     * @Route("/program/{programName<^[a-zA-Z0-9-, &]+$>?null}", name="show_program")
+     * @Route("/program/{programName<^[a-zA-Z0-9-, &\.]+$>?null}", name="show_program")
      *
      * @param string $programName
      * @return Response
@@ -157,5 +160,26 @@ class WildController extends AbstractController
             'season' => $season,
             'episodes' => $episodes
         ]);
+    }
+
+    /**
+     * @Route("/episode/{episode}", name="show_episode", methods={"GET"})
+     *
+     * @param Episode $episode
+     * @return Response
+     */
+    public function showByEpisode(Episode $episode):Response
+    {
+        if (!$episode) {
+            throw $this
+                ->createNotFoundException('No episode\'s id has been sent');
+        }
+
+        //$form = $this->createForm(CommentType::class);
+
+        return $this->render('wild/episode.html.twig', [
+            'episode' => $episode,
+            //'form' => $form
+            ]);
     }
 }
