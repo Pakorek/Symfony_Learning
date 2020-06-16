@@ -13,6 +13,7 @@ use App\Entity\Creator;
 use App\Entity\Episode;
 use App\Entity\Program;
 use App\Entity\Season;
+use App\Service\Slugify;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Persistence\ObjectManager;
 use PhpParser\Node\Expr\Cast\Object_;
@@ -273,10 +274,11 @@ class AdminController extends AbstractController
         return $details;
     }
 
-    public function updateBDD(array $repos, ObjectManager $em):void
+    public function updateBDD(array $repos, ObjectManager $em, Slugify $sluggy):void
     {
         $program = new Program();
         $program->setTitle($repos['api_program'][0]->getTitle());
+        $program->setSlug($sluggy->generate($repos['api_program'][0]->getTitle()));
         $program->setApiId($repos['api_program'][0]->getApiId());
         $program->setYear($repos['api_program'][0]->getYear());
         $program->setSummary($repos['api_program'][0]->getPlot());
