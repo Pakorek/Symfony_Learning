@@ -26,9 +26,6 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class AdminController extends AbstractController
 {
-    const KEY = 'k_Gyn239Fh';
-
-
     /**
      * @Route("/", name="index")
      *
@@ -264,7 +261,7 @@ class AdminController extends AbstractController
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://imdb-api.com/en/API/SearchSeries/". self::KEY . "/$search",
+            CURLOPT_URL => "https://imdb-api.com/en/API/SearchSeries/". $_SERVER["APP_KEY"] . "/$search",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -292,7 +289,7 @@ class AdminController extends AbstractController
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://imdb-api.com/en/API/Title/". self::KEY ."/$id",
+            CURLOPT_URL => "https://imdb-api.com/en/API/Title/". $_SERVER["APP_KEY"] ."/$id",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -323,7 +320,7 @@ class AdminController extends AbstractController
 
         for ($i=1;$i<$seasons+1;$i++) {
             curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://imdb-api.com/en/API/SeasonEpisodes/". self::KEY ."/$id/$i",
+                CURLOPT_URL => "https://imdb-api.com/en/API/SeasonEpisodes/". $_SERVER["APP_KEY"] ."/$id/$i",
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => "",
                 CURLOPT_MAXREDIRS => 10,
