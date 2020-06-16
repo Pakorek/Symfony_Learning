@@ -13,8 +13,10 @@ use App\Entity\Creator;
 use App\Entity\Episode;
 use App\Entity\Program;
 use App\Entity\Season;
+use App\Service\Slugify;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Persistence\ObjectManager;
+use Exception;
 use PhpParser\Node\Expr\Cast\Object_;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -29,9 +31,6 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class AdminController extends AbstractController
 {
-    const KEY = 'k_k6A30v26se';
-
-
     /**
      * @Route("/", name="index")
      *
@@ -82,9 +81,11 @@ class AdminController extends AbstractController
     /**
      * @Route("/getSerie", name="getSerie")
      *
+     * @param Slugify $sluggy
      * @return Response
+     * @throws Exception
      */
-    public function getSerie():Response
+    public function getSerie(Slugify $sluggy):Response
     {
         if (isset($_GET['search_id']))
         {
@@ -171,10 +172,10 @@ class AdminController extends AbstractController
                 ->findOneBy(['title' => $repos['api_program'][0]->getTitle()]);
 
             if ($programExist) {
-                throw new \Exception('Already in Database !');
+                throw new Exception('Already in Database !');
             }
 
-            $this->updateBDD($repos, $em);
+            $this->updateBDD($repos, $em, $sluggy);
 
             // Clear API BDD
             $this->dropApiDB();
@@ -197,7 +198,7 @@ class AdminController extends AbstractController
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://imdb-api.com/en/API/SearchSeries/". self::KEY . "/$search",
+            CURLOPT_URL => "https://imdb-api.com/en/API/SearchSeries/". $_SERVER["APP_KEY"] . "/$search",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -225,7 +226,7 @@ class AdminController extends AbstractController
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://imdb-api.com/en/API/Title/". self::KEY ."/$id",
+            CURLOPT_URL => "https://imdb-api.com/en/API/Title/". $_SERVER["APP_KEY"] ."/$id",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -256,7 +257,7 @@ class AdminController extends AbstractController
 
         for ($i=1;$i<$seasons+1;$i++) {
             curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://imdb-api.com/en/API/SeasonEpisodes/". self::KEY ."/$id/$i",
+                CURLOPT_URL => "https://imdb-api.com/en/API/SeasonEpisodes/". $_SERVER["APP_KEY"] ."/$id/$i",
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => "",
                 CURLOPT_MAXREDIRS => 10,
@@ -276,10 +277,11 @@ class AdminController extends AbstractController
         return $details;
     }
 
-    public function updateBDD(array $repos, ObjectManager $em):void
+    public function updateBDD(array $repos, ObjectManager $em, Slugify $sluggy):void
     {
         $program = new Program();
         $program->setTitle($repos['api_program'][0]->getTitle());
+        $program->setSlug($sluggy->generate($repos['api_program'][0]->getTitle()));
         $program->setApiId($repos['api_program'][0]->getApiId());
         $program->setYear($repos['api_program'][0]->getYear());
         $program->setSummary($repos['api_program'][0]->getPlot());
@@ -298,6 +300,7 @@ class AdminController extends AbstractController
                 $actor = new Actor();
                 $actor->setName($_actor->getName());
                 $actor->setImage($_actor->getImage());
+                $actor->setSlug($sluggy->generate($_actor->getName()));
                 $em->persist($actor);
                 $program->addActor($actor);
             } else {
@@ -351,6 +354,7 @@ class AdminController extends AbstractController
                     $episode->setSynopsis($episod->getPlot());
                     $episode->setPoster($episod->getImage());
                     $episode->setReleased($episod->getReleased());
+                    $episode->setSlug($sluggy->generate($episod->getTitle()));
                     $episode->setSeason($season);
                     $season->addEpisode($episode);
                     $em->persist($episode);
