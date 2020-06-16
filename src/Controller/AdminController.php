@@ -16,6 +16,7 @@ use App\Entity\Season;
 use App\Service\Slugify;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Persistence\ObjectManager;
+use Exception;
 use PhpParser\Node\Expr\Cast\Object_;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -80,9 +81,11 @@ class AdminController extends AbstractController
     /**
      * @Route("/getSerie", name="getSerie")
      *
+     * @param Slugify $sluggy
      * @return Response
+     * @throws Exception
      */
-    public function getSerie():Response
+    public function getSerie(Slugify $sluggy):Response
     {
         if (isset($_GET['search_id']))
         {
@@ -169,10 +172,10 @@ class AdminController extends AbstractController
                 ->findOneBy(['title' => $repos['api_program'][0]->getTitle()]);
 
             if ($programExist) {
-                throw new \Exception('Already in Database !');
+                throw new Exception('Already in Database !');
             }
 
-            $this->updateBDD($repos, $em);
+            $this->updateBDD($repos, $em, $sluggy);
 
             // Clear API BDD
             $this->dropApiDB();
@@ -297,6 +300,7 @@ class AdminController extends AbstractController
                 $actor = new Actor();
                 $actor->setName($_actor->getName());
                 $actor->setImage($_actor->getImage());
+                $actor->setSlug($sluggy->generate($_actor->getName()));
                 $em->persist($actor);
                 $program->addActor($actor);
             } else {
@@ -350,6 +354,7 @@ class AdminController extends AbstractController
                     $episode->setSynopsis($episod->getPlot());
                     $episode->setPoster($episod->getImage());
                     $episode->setReleased($episod->getReleased());
+                    $episode->setSlug($sluggy->generate($episod->getTitle()));
                     $episode->setSeason($season);
                     $season->addEpisode($episode);
                     $em->persist($episode);
