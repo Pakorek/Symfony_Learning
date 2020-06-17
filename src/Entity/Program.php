@@ -293,7 +293,7 @@ class Program
     /**
      * @return Collection|Category[]
      */
-    public function getCategories(): Collection
+    public function getCategory(): Collection
     {
         return $this->categories;
     }

@@ -2,10 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Actor;
 use App\Entity\Program;
 use App\Form\ProgramType;
 use App\Repository\ProgramRepository;
 use App\Service\Slugify;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -63,8 +66,22 @@ class ProgramController extends AbstractController
      */
     public function show(Program $program): Response
     {
+//        $userRepo = $entityManager->getRepository(Actor::class);
+        $entityManager = $this->getDoctrine()->getRepository(Actor::class);
+        $queryBuilder = $entityManager->createQueryBuilder('a');
+
+        $queryBuilder->select('a.name')
+            ->where(':program in a.programs')
+            ->setParameter('program', $program->getTitle());
+
+        $query = $queryBuilder->getQuery();
+
+        echo $query->getDQL(), "\n";
+        $actors = $query->getOneOrNullResult();
+
         return $this->render('program/show.html.twig', [
             'program' => $program,
+            'actors' => $actors
         ]);
     }
 
