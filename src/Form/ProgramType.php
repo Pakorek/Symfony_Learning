@@ -14,13 +14,7 @@ class ProgramType extends AbstractType
         $builder
             ->add('title')
             ->add('summary')
-            ->add('poster')
-            ->add('API_id')
-            ->add('year')
-            ->add('runtime')
-            ->add('awards')
-            ->add('nb_seasons')
-        ;
+            ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
