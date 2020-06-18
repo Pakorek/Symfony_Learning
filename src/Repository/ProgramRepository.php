@@ -22,9 +22,10 @@ class ProgramRepository extends ServiceEntityRepository
     public function findAllWithActors()
     {
         return $this->createQueryBuilder('p')
+            ->addSelect('a')
             ->innerJoin('p.actors', 'a')
             ->orderBy('p.title', 'ASC')
-            ->orderBy('a.name', 'ASC')
+            ->addOrderBy('a.name', 'ASC')
             ->getQuery()
             ->getResult()
             ;
