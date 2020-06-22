@@ -2,25 +2,25 @@
 
 namespace App\Form;
 
-use App\Entity\Program;
+use App\Entity\Creator;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class ProgramType extends AbstractType
+class CreatorType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('title')
-            ->add('summary')
-            ;
+            ->add('fullName')
+            ->add('program')
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => Program::class,
+            'data_class' => Creator::class,
         ]);
     }
 }

@@ -101,12 +101,11 @@ class WildController extends AbstractController
             ->getRepository(Category::class)
             ->findOneBy(['name' => $categoryName]);
 
-        $programs = $this->getDoctrine()
-            ->getRepository(Program::class)
-            ->findBy(['category' => $category->getId()], ['id' => 'DESC'], 3);
+        $programs = $category->getPrograms();
 
         return $this->render('wild/category.html.twig', [
             'programs' => $programs,
+            'category' => $categoryName
         ]);
     }
 

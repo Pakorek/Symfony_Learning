@@ -15,7 +15,7 @@ $theme-colors: (
 
 body {
     background-color: $background;
-    color: $white;
+    color: #999;
 }
 
 #header_base {
@@ -24,4 +24,8 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
     color: $purple;
+}
+
+.table {
+    color: #999;
 }
