@@ -6,6 +6,7 @@ use App\Entity\Actor;
 use App\Form\ActorType;
 use App\Repository\ActorRepository;
 use App\Service\Slugify;
+use Doctrine\Persistence\ObjectManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,6 +19,8 @@ class ActorController extends AbstractController
 {
     /**
      * @Route("/", name="actor_index", methods={"GET"})
+     * @param ActorRepository $actorRepository
+     * @return Response
      */
     public function index(ActorRepository $actorRepository): Response
     {
