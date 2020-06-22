@@ -44,7 +44,7 @@ class User implements UserInterface
     private $comments;
 
     /**
-     * @ORM\Column(type="string", length=45)
+     * @ORM\Column(type="string", length=45, nullable=true)
      */
     private $username;
 
