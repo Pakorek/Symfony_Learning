@@ -88,6 +88,9 @@ class ProgramController extends AbstractController
 
     /**
      * @Route("/{id}", name="program_delete", methods={"DELETE"})
+     * @param Request $request
+     * @param Program $program
+     * @return Response
      */
     public function delete(Request $request, Program $program): Response
     {
@@ -95,6 +98,9 @@ class ProgramController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($program);
             $entityManager->flush();
+
+            $this->addFlash('danger', 'Program successfully removed');
+
         }
 
         return $this->redirectToRoute('program_index');

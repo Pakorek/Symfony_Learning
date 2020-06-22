@@ -89,6 +89,9 @@ class ActorController extends AbstractController
 
     /**
      * @Route("/{id}", name="actor_delete", methods={"DELETE"})
+     * @param Request $request
+     * @param Actor $actor
+     * @return Response
      */
     public function delete(Request $request, Actor $actor): Response
     {
@@ -96,6 +99,8 @@ class ActorController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($actor);
             $entityManager->flush();
+
+            $this->addFlash('danger', 'Actor successfully removed');
         }
 
         return $this->redirectToRoute('actor_index');
