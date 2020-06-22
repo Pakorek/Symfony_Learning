@@ -18,6 +18,8 @@ class EpisodeController extends AbstractController
 {
     /**
      * @Route("/", name="episode_index", methods={"GET"})
+     * @param EpisodeRepository $episodeRepository
+     * @return Response
      */
     public function index(EpisodeRepository $episodeRepository): Response
     {
@@ -43,6 +45,8 @@ class EpisodeController extends AbstractController
             $episode->setSlug($sluggy->generate($episode->getTitle()));
             $entityManager->persist($episode);
             $entityManager->flush();
+
+            $this->addFlash('success','Episode successfully added !');
 
             return $this->redirectToRoute('episode_index');
         }
@@ -94,6 +98,9 @@ class EpisodeController extends AbstractController
 
     /**
      * @Route("/{id}", name="episode_delete", methods={"DELETE"})
+     * @param Request $request
+     * @param Episode $episode
+     * @return Response
      */
     public function delete(Request $request, Episode $episode): Response
     {
@@ -101,6 +108,9 @@ class EpisodeController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($episode);
             $entityManager->flush();
+
+            $this->addFlash('danger', 'Episode successfully removed');
+
         }
 
         return $this->redirectToRoute('episode_index');

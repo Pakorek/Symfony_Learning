@@ -7,7 +7,10 @@ use App\Entity\Episode;
 use App\Entity\Program;
 use App\Entity\Season;
 use App\Form\CommentType;
+use App\Repository\CommentRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -162,23 +165,35 @@ class WildController extends AbstractController
     }
 
     /**
-     * @Route("/episode/{episode}", name="show_episode", methods={"GET"})
+     * @Route("/episode/{episode}", name="show_episode", methods={"GET","POST"})
      *
      * @param Episode $episode
+     * @param Request $request
+     * @param EntityManagerInterface $em
+     * @param CommentRepository $comments
      * @return Response
      */
-    public function showByEpisode(Episode $episode):Response
+    public function showByEpisode(Episode $episode, Request $request, EntityManagerInterface $em, CommentRepository $comments):Response
     {
         if (!$episode) {
             throw $this
                 ->createNotFoundException('No episode\'s id has been sent');
         }
 
-        //$form = $this->createForm(CommentType::class);
+        $comment = new Comment();
+        $form = $this->createForm(CommentType::class, $comment);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $comment->setAuthor($this->getUser());
+            $em->persist($comment);
+            $em->flush();
+        }
 
         return $this->render('wild/episode.html.twig', [
             'episode' => $episode,
-            //'form' => $form
+            'comments' => $comments->findAll(),
+            'form' => $form->createView()
             ]);
     }
 }

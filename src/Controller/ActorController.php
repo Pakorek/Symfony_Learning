@@ -47,6 +47,8 @@ class ActorController extends AbstractController
             $entityManager->persist($actor);
             $entityManager->flush();
 
+            $this->addFlash('success','Actor successfully added !');
+
             return $this->redirectToRoute('actor_index');
         }
 
@@ -107,6 +109,8 @@ class ActorController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($actor);
             $entityManager->flush();
+
+            $this->addFlash('danger', 'Actor successfully removed');
         }
 
         return $this->redirectToRoute('actor_index');

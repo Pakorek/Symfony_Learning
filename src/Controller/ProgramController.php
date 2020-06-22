@@ -47,6 +47,8 @@ class ProgramController extends AbstractController
             $entityManager->persist($program);
             $entityManager->flush();
 
+            $this->addFlash('success','Program successfully added !');
+
             return $this->redirectToRoute('program_index');
         }
 
@@ -108,6 +110,9 @@ class ProgramController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($program);
             $entityManager->flush();
+
+            $this->addFlash('danger', 'Program successfully removed');
+
         }
 
         return $this->redirectToRoute('program_index');

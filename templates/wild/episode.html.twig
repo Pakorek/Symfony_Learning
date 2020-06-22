@@ -45,18 +45,27 @@
     <br><br>
     {% if app.user is not null %}
         <p>Leave a comment</p>
-        <form action="" method="post">
-            <label for="rate">Rating</label>
-            <input type="number" step="1" min="0" max="5" name="rate" id="rate" class="form-control">
+            {{ form_start(form) }}
+            {{ form_widget(form) }}
+            <button class="btn">{{ button_label|default('Save') }}</button>
+            {{ form_end(form) }}
 
-            <label for="comment"></label>
-            <textarea name="comment" id="comment" cols="30" rows="10" class="form-control" placeholder="Comment Here ..."></textarea>
+        {#
+                <form action="" method="post">
+                    <label for="rate">Rating</label>
+                    <input type="number" step="1" min="0" max="5" name="rate" id="rate" class="form-control">
 
-            <button type="submit">Send !</button>
-        </form>
+                    <label for="comment"></label>
+                    <textarea name="comment" id="comment" cols="30" rows="10" class="form-control" placeholder="Comment Here ..."></textarea>
+
+                    <button type="submit">Send !</button>
+                </form>
+        #}
     {% endif %}
-{#    {{ form_start(form) }}#}
-{#    {{ form_widget(form) }}#}
-{#    <button class="btn">{{ button_label|default('Save') }}</button>#}
-{#    {{ form_end(form) }}#}
+
+    {% for comment in comments %}
+        <blockquote>
+            {{ comment.rate }} : {{ comment.comment }}
+        </blockquote>
+    {% endfor %}
 {% endblock %}
