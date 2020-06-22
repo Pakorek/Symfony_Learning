@@ -27,6 +27,8 @@ class ActorController extends AbstractController
 
     /**
      * @Route("/new", name="actor_new", methods={"GET","POST"})
+     * @param Request $request
+     * @return Response
      */
     public function new(Request $request): Response
     {
@@ -38,6 +40,8 @@ class ActorController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($actor);
             $entityManager->flush();
+
+            $this->addFlash('success','Actor successfully added !');
 
             return $this->redirectToRoute('actor_index');
         }
@@ -62,6 +66,9 @@ class ActorController extends AbstractController
 
     /**
      * @Route("/{id}/edit", name="actor_edit", methods={"GET","POST"})
+     * @param Request $request
+     * @param Actor $actor
+     * @return Response
      */
     public function edit(Request $request, Actor $actor): Response
     {

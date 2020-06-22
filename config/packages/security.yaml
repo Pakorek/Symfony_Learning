@@ -36,4 +36,4 @@ security:
     access_control:
          - { path: ^/admin, roles: ROLE_ADMIN }
 #         - { path: ^/wild, roles: ROLE_USER }
-#         - { path: ^/(login|register), roles: IS_AUTHENTICATED_ANONYMOUSLY }
+         - { path: ^/(login|register), roles: IS_AUTHENTICATED_ANONYMOUSLY }

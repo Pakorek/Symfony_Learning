@@ -27,6 +27,8 @@ class SeasonController extends AbstractController
 
     /**
      * @Route("/new", name="season_new", methods={"GET","POST"})
+     * @param Request $request
+     * @return Response
      */
     public function new(Request $request): Response
     {
@@ -38,6 +40,8 @@ class SeasonController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($season);
             $entityManager->flush();
+
+            $this->addFlash('success','Season successfully added !');
 
             return $this->redirectToRoute('season_index');
         }
