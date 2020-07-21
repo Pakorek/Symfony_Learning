@@ -24,6 +24,8 @@
 
 ## 17 . Services                : branch service_17 
 
+## 18 . Envoi d'Email           : branch send_email
+
 ## 19 . Gestion User            : branch user_19
 
 ## 22 . Doctrine QueryBuilder   : branch doctrine_22
