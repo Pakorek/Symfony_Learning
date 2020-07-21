@@ -5,10 +5,13 @@ namespace App\Entity;
 use App\Repository\ProgramRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=ProgramRepository::class)
+ * @Vich\Uploadable
  */
 class Program
 {
@@ -34,6 +37,11 @@ class Program
      */
     private $poster;
 
+    /**
+     * @Vich\UploadableField(mapping="poster_file", fileNameProperty="poster")
+     * @var File
+     */
+    private $posterFile;
 
     /**
      * @ORM\OneToMany(targetEntity=Season::class, mappedBy="program")
@@ -84,6 +92,11 @@ class Program
      * @ORM\Column(type="integer", nullable=true)
      */
     private $endYear;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $updatedAt;
 
     public function __construct()
     {
@@ -321,6 +334,39 @@ class Program
     public function setEndYear(?int $endYear): self
     {
         $this->endYear = $endYear;
+
+        return $this;
+    }
+
+    /**
+     * @param File|null $image
+     * @return Program
+     */
+    public function setPosterFile(File $image = null): Program
+    {
+        $this->posterFile = $image;
+        if ($image) {
+            $this->updatedAt = new \DateTime('now');
+        }
+        return $this;
+    }
+
+    /**
+     * @return File
+     */
+    public function getPosterFile(): ?File
+    {
+        return $this->posterFile;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }

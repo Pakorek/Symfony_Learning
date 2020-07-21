@@ -6,6 +6,7 @@ use App\Entity\Program;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Vich\UploaderBundle\Form\Type\VichFileType;
 
 class ProgramType extends AbstractType
 {
@@ -20,7 +21,12 @@ class ProgramType extends AbstractType
             ->add('runtime')
             ->add('awards')
             ->add('nb_seasons')
-            ->add('category', null, ['choice_label' => 'name'])
+//            ->add('category')
+            ->add('posterFile', VichFileType::class, [
+                'required' => false,
+                'allow_delete' => true, //not mandatory, default true
+                'download_uri' => true, //not mandatory, default true
+            ])
         ;
     }
 
