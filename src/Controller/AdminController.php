@@ -13,6 +13,11 @@ use App\Entity\Creator;
 use App\Entity\Episode;
 use App\Entity\Program;
 use App\Entity\Season;
+use App\Service\Slugify;
+use Doctrine\ORM\EntityManager;
+use Doctrine\Persistence\ObjectManager;
+use Exception;
+use PhpParser\Node\Expr\Cast\Object_;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,9 +31,6 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class AdminController extends AbstractController
 {
-    const KEY = 'k_Gyn239Fh';
-
-
     /**
      * @Route("/", name="index")
      *
@@ -79,9 +81,11 @@ class AdminController extends AbstractController
     /**
      * @Route("/getSerie", name="getSerie")
      *
+     * @param Slugify $sluggy
      * @return Response
+     * @throws Exception
      */
-    public function getSerie():Response
+    public function getSerie(Slugify $sluggy):Response
     {
         if (isset($_GET['search_id']))
         {
@@ -162,86 +166,16 @@ class AdminController extends AbstractController
         {
             $repos = $this->getAllApiRepo();
 
-            // MaJ BDD
-            // if !contains
-
             $em = $this->getDoctrine()->getManager();
 
-            $program = new Program();
-            $program->setTitle($repos['api_program'][0]->getTitle());
-            $program->setApiId($repos['api_program'][0]->getApiId());
-            $program->setYear($repos['api_program'][0]->getYear());
-            $program->setSummary($repos['api_program'][0]->getPlot());
-            $program->setPoster($repos['api_program'][0]->getPoster());
-            $program->setRuntime($repos['api_program'][0]->getRuntime());
-            $program->setAwards($repos['api_program'][0]->getAwards());
-            $program->setNbSeasons($repos['api_program'][0]->getNbSeasons());
-            $program->setEndYear($repos['api_program'][0]->getEndYear());
+            $programExist = $em->getRepository(Program::class)
+                ->findOneBy(['title' => $repos['api_program'][0]->getTitle()]);
 
-            foreach ($repos['api_actor'] as $_actor) {
-                $actorExist = $this->getDoctrine()
-                    ->getRepository(Actor::class)
-                    ->findOneBy(['name' => $_actor->getName()]);
-
-                if (!$actorExist) {
-                    $actor = new Actor();
-                    $actor->setName($_actor->getName());
-                    $actor->setImage($_actor->getImage());
-                    $em->persist($actor);
-                    $program->addActor($actor);
-                }
+            if ($programExist) {
+                throw new Exception('Already in Database !');
             }
 
-            foreach ($repos['api_creator'] as $_creator) {
-                $creatorExist = $this->getDoctrine()
-                    ->getRepository(Creator::class)
-                    ->findOneBy(['fullName' => $_creator->getFullName()]);
-
-                if (!$creatorExist) {
-                    $creator = new Creator();
-                    $creator->setFullName($_creator->getFullName());
-                    $em->persist($creator);
-                    $program->addCreator($creator);
-                }
-            }
-
-            foreach ($repos['api_category'] as $_cat) {
-                $catExist = $this->getDoctrine()
-                    ->getRepository(Category::class)
-                    ->findOneBy(['name' => $_cat->getName()]);
-
-                if (!$catExist) {
-                    $category = new Category();
-                    $category->setName($_cat->getName());
-                    $em->persist($category);
-                    $program->addCategory($category);
-                }
-            }
-            $em->persist($program);
-
-            foreach ($repos['api_season'] as $ap_season) {
-                $season = new Season();
-                $season->setNumber($ap_season->getNumber());
-                $season->setYear($ap_season->getYear());
-                $season->setDescription('...');
-                $season->setProgram($program);
-
-                foreach ($repos['api_episode'] as $episod) {
-                    if ($episod->getSeason()->getNumber() == $ap_season->getNumber()) {
-                        $episode = new Episode();
-                        $episode->setNumber($episod->getNumber());
-                        $episode->setTitle($episod->getTitle());
-                        $episode->setSynopsis($episod->getPlot());
-                        $episode->setPoster($episod->getImage());
-                        $episode->setReleased($episod->getReleased());
-                        $episode->setSeason($season);
-                        $season->addEpisode($episode);
-                        $em->persist($episode);
-                    }
-                }
-                $em->persist($season);
-            }
-            $em->flush();
+            $this->updateBDD($repos, $em, $sluggy);
 
             // Clear API BDD
             $this->dropApiDB();
@@ -264,7 +198,7 @@ class AdminController extends AbstractController
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://imdb-api.com/en/API/SearchSeries/". self::KEY . "/$search",
+            CURLOPT_URL => "https://imdb-api.com/en/API/SearchSeries/". $_SERVER["APP_KEY"] . "/$search",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -292,7 +226,7 @@ class AdminController extends AbstractController
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://imdb-api.com/en/API/Title/". self::KEY ."/$id",
+            CURLOPT_URL => "https://imdb-api.com/en/API/Title/". $_SERVER["APP_KEY"] ."/$id",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -323,7 +257,7 @@ class AdminController extends AbstractController
 
         for ($i=1;$i<$seasons+1;$i++) {
             curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://imdb-api.com/en/API/SeasonEpisodes/". self::KEY ."/$id/$i",
+                CURLOPT_URL => "https://imdb-api.com/en/API/SeasonEpisodes/". $_SERVER["APP_KEY"] ."/$id/$i",
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => "",
                 CURLOPT_MAXREDIRS => 10,
@@ -341,5 +275,93 @@ class AdminController extends AbstractController
         curl_close($curl);
 
         return $details;
+    }
+
+    public function updateBDD(array $repos, ObjectManager $em, Slugify $sluggy):void
+    {
+        $program = new Program();
+        $program->setTitle($repos['api_program'][0]->getTitle());
+        $program->setSlug($sluggy->generate($repos['api_program'][0]->getTitle()));
+        $program->setApiId($repos['api_program'][0]->getApiId());
+        $program->setYear($repos['api_program'][0]->getYear());
+        $program->setSummary($repos['api_program'][0]->getPlot());
+        $program->setPoster($repos['api_program'][0]->getPoster());
+        $program->setRuntime($repos['api_program'][0]->getRuntime());
+        $program->setAwards($repos['api_program'][0]->getAwards());
+        $program->setNbSeasons($repos['api_program'][0]->getNbSeasons());
+        $program->setEndYear($repos['api_program'][0]->getEndYear());
+
+        foreach ($repos['api_actor'] as $_actor) {
+            $actorExist = $this->getDoctrine()
+                ->getRepository(Actor::class)
+                ->findOneBy(['name' => $_actor->getName()]);
+
+            if (!$actorExist) {
+                $actor = new Actor();
+                $actor->setName($_actor->getName());
+                $actor->setImage($_actor->getImage());
+                $actor->setSlug($sluggy->generate($_actor->getName()));
+                $em->persist($actor);
+                $program->addActor($actor);
+            } else {
+                $actorExist->addProgram($program);
+            }
+        }
+
+        foreach ($repos['api_creator'] as $_creator) {
+            $creatorExist = $this->getDoctrine()
+                ->getRepository(Creator::class)
+                ->findOneBy(['fullName' => $_creator->getFullName()]);
+
+            if (!$creatorExist) {
+                $creator = new Creator();
+                $creator->setFullName($_creator->getFullName());
+                $em->persist($creator);
+                $program->addCreator($creator);
+            } else {
+                $creatorExist->setProgram($program);
+            }
+        }
+
+        foreach ($repos['api_category'] as $_cat) {
+            $catExist = $this->getDoctrine()
+                ->getRepository(Category::class)
+                ->findOneBy(['name' => $_cat->getName()]);
+
+            if (!$catExist) {
+                $category = new Category();
+                $category->setName($_cat->getName());
+                $em->persist($category);
+                $program->addCategory($category);
+            } else {
+                $catExist->addProgram($program);
+            }
+        }
+        $em->persist($program);
+
+        foreach ($repos['api_season'] as $ap_season) {
+            $season = new Season();
+            $season->setNumber($ap_season->getNumber());
+            $season->setYear($ap_season->getYear());
+            $season->setDescription('...');
+            $season->setProgram($program);
+
+            foreach ($repos['api_episode'] as $episod) {
+                if ($episod->getSeason()->getNumber() == $ap_season->getNumber()) {
+                    $episode = new Episode();
+                    $episode->setNumber($episod->getNumber());
+                    $episode->setTitle($episod->getTitle());
+                    $episode->setSynopsis($episod->getPlot());
+                    $episode->setPoster($episod->getImage());
+                    $episode->setReleased($episod->getReleased());
+                    $episode->setSlug($sluggy->generate($episod->getTitle()));
+                    $episode->setSeason($season);
+                    $season->addEpisode($episode);
+                    $em->persist($episode);
+                }
+            }
+            $em->persist($season);
+        }
+        $em->flush();
     }
 }
