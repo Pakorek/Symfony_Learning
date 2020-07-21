@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\CategoryRepository;
 use App\Entity\Category;
 use App\Form\CategoryType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -12,6 +13,17 @@ use Symfony\Component\Routing\Annotation\Route;
 class CategoryController extends AbstractController
 {
     /**
+     * @param CategoryRepository $categoryRepo
+     * @return Response
+     */
+    public function index(CategoryRepository $categoryRepo)
+    {
+        return $this->render('category/index.html.twig', [
+            'categories' => $categoryRepo->findAll(),
+          
+         ]);
+    }
+
      * @Route("/category/add", name="add_category", methods={"GET","POST"})
      * @param Request $request
      * @return Response
