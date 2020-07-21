@@ -36,6 +36,14 @@
                     <a href="{{ path('program_show', {'id': program.id}) }}">show</a>
                     <a href="{{ path('program_edit', {'id': program.id}) }}">edit</a>
                 </td>
+                <td>
+                    <ul>
+                        {% for actor in program.actors %}
+                            <li>{{ actor.name }}</li>
+                        {% endfor %}
+
+                    </ul>
+                </td>
             </tr>
         {% else %}
             <tr>
