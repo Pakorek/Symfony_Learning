@@ -5,12 +5,15 @@ namespace App\Entity;
 use App\Repository\ProgramRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ProgramRepository::class)
+ * @Vich\Uploadable
  * @UniqueEntity(
  *     fields={"title"},
  *     message="Ce titre existe déjà")
@@ -47,6 +50,11 @@ class Program
      */
     private $poster;
 
+    /**
+     * @Vich\UploadableField(mapping="poster_file", fileNameProperty="poster")
+     * @var File
+     */
+    private $posterFile;
 
     /**
      * @ORM\OneToMany(targetEntity=Season::class, mappedBy="program")
@@ -99,9 +107,9 @@ class Program
     private $endYear;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="datetime", nullable=true)
      */
-    private $slug;
+    private $updatedAt;
 
     public function __construct()
     {
@@ -343,14 +351,35 @@ class Program
         return $this;
     }
 
-    public function getSlug(): ?string
+    /**
+     * @param File|null $image
+     * @return Program
+     */
+    public function setPosterFile(File $image = null): Program
     {
-        return $this->slug;
+        $this->posterFile = $image;
+        if ($image) {
+            $this->updatedAt = new \DateTime('now');
+        }
+        return $this;
     }
 
-    public function setSlug(string $slug): self
+    /**
+     * @return File
+     */
+    public function getPosterFile(): ?File
     {
-        $this->slug = $slug;
+        return $this->posterFile;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }
