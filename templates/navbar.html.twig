@@ -19,9 +19,14 @@
     <a class="navbar-brand ml-5 mr-5" href="/">Wild Series</a>
 
     <ul class="navbar-nav ml-5">
-        <li class="nav-item">
-            <a class="nav-link" href="#">Catégories</a>
-        </li>
+        <div class="dropdown">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                Catégories
+            </button>
+            <div class="dropdown-menu">
+                {{render(controller('App\\Controller\\CategoryController::index'))}}
+            </div>
+        </div>
         <li class="nav-item ml-5">
             <a class="nav-link" href="#">Acteurs / Actrices</a>
         </li>
