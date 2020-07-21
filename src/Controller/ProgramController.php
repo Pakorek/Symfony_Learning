@@ -9,6 +9,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 
 /**
  * @Route("/program")
@@ -32,7 +34,7 @@ class ProgramController extends AbstractController
      * @param Request $request
      * @return Response
      */
-    public function new(Request $request): Response
+    public function new(Request $request, MailerInterface $mailer): Response
     {
         $program = new Program();
         $form = $this->createForm(ProgramType::class, $program);
@@ -44,6 +46,14 @@ class ProgramController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success','Program successfully added !');
+
+            $email = (new Email())
+                ->from('brice.darmenia@sfr.fr')
+                ->to('whatever@mail.com')
+                ->subject('Une nouvelle série vient d\'être publiée !!!')
+                ->html('<p>Une nouvelle série vient d\'être publiée !!!</p>');
+
+            $mailer->send($email);
 
             return $this->redirectToRoute('program_index');
         }
