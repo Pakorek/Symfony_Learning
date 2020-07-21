@@ -30,4 +30,6 @@
 
 ## 23 . Session & Flash         : branch flash_23
 
+## 26 . Embedding Controller    : branch embedding_controller
+
 ## 27 . Vich Upload             : branch vich_upload
